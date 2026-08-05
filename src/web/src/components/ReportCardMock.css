@@ -1,0 +1,81 @@
+.mock-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mock-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mock-card__median {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.mock-card__median-num {
+  font-size: 40px;
+  font-weight: 590;
+  color: var(--fg);
+  line-height: 1;
+}
+.mock-card__median-label {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.mock-card__chapters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.mock-card__chapter {
+  display: grid;
+  grid-template-columns: 84px 1fr 40px;
+  align-items: center;
+  gap: var(--space-3);
+}
+.mock-card__chapter-name {
+  font-size: var(--text-sm);
+  color: var(--fg-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mock-card__chapter-rate {
+  font-size: var(--text-sm);
+  color: var(--fg-2);
+  text-align: right;
+}
+.mock-fill--high {
+  background: var(--danger);
+}
+.mock-fill--mid {
+  background: var(--warn);
+}
+
+.mock-card__quote {
+  font-size: var(--text-sm);
+  line-height: 1.8;
+  color: var(--fg-2);
+  background: var(--surface-warm);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+}
+.mock-card__quote-high {
+  background: var(--highlight-high);
+  color: var(--fg);
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+.mock-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-soft);
+}

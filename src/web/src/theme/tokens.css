@@ -1,0 +1,149 @@
+/* ============================================================
+   pre-spc design-tokens.css  v1.0.0（唯一 Token 源：design-tokens.json）
+   本文件为 Web 端 CSS 变量层（非 AntD 部分 + 语义引用）
+   禁止硬编码颜色（唯一例外 #fff / #000）
+   ============================================================ */
+
+:root {
+  /* ---- A1-identity：品牌核心 ---- */
+  --bg: #F7F8FA;                 /* 页面背景（冷调浅灰） */
+  --surface: #FFFFFF;            /* 卡片/容器 */
+  --surface-warm: #F1F2F4;       /* 三级表面/表头底 */
+  --fg: #1F2937;                 /* 主文本 */
+  --fg-2: #4B5563;               /* 次级文本 */
+  --muted: #6B7280;              /* 副文本/说明 */
+  --meta: #9CA3AF;               /* 三级前景/元数据 */
+  --border: #E5E7EB;             /* 默认边框 */
+  --border-soft: #F1F2F4;        /* 行分隔/内部线 */
+
+  --accent: #0D9488;             /* 品牌主色 Teal（每屏≤2处可见使用） */
+  --accent-hover: #0F766E;
+  --accent-active: #115E59;
+  --accent-on: #FFFFFF;          /* accent 背景上的前景 */
+  --accent-soft: #F0FDFA;        /* 浅底/选中底 */
+
+  --font-display: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* ---- A2-semantic：状态语义色（组件状态用） ---- */
+  --success: #16A34A;
+  --warn: #EA580C;
+  --danger: #DC2626;
+  --info: #2563EB;
+
+  /* ---- C-extension：内容标记语义色（报告页高亮，独立于界面强调色，不走 AntD semantic） ---- */
+  --highlight-high: rgba(220, 38, 38, 0.13);    /* 高重复（红） 仅作底色，正文恒为深色 */
+  --highlight-mid: rgba(234, 88, 12, 0.12);     /* 中重复（橙） */
+  --highlight-cite: rgba(180, 83, 9, 0.16);     /* 引用（赭黄加深保对比） */
+  --highlight-exclude: rgba(107, 114, 128, 0.10); /* 排除（灰） */
+
+  /* ---- 排版 ---- */
+  --text-xs: 0.75rem;    /* 12px 标签/徽章 */
+  --text-sm: 0.875rem;   /* 14px 辅助/表头 */
+  --text-md: 1rem;       /* 16px 正文基准 */
+  --text-lg: 1.125rem;   /* 18px 三级标题 */
+  --text-xl: 1.25rem;    /* 20px 二级标题 */
+  --text-2xl: 1.5rem;    /* 24px 一级标题 */
+  --text-3xl: 2rem;      /* 32px 页面大标题 */
+  --text-4xl: 2.5rem;    /* 40px Hero/展示 */
+  --weight-regular: 400;
+  --weight-medium: 510;
+  --weight-semibold: 590;
+  --leading-body: 1.6;
+  --leading-tight: 1.25;
+  --tracking-display: -0.02em;
+  --tracking-label: 0.06em;
+
+  /* ---- 间距（4px 网格） ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+
+  /* ---- 层级与动效 ---- */
+  --elev-flat: none;
+  --elev-ring: 0 0 0 1px var(--border);
+  --elev-raised: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --focus-ring: 0 0 0 3px rgba(13, 148, 136, 0.35);
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 300ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- 布局 ---- */
+  --container-max: 1200px;
+  --section-y-desktop: 80px;
+  --section-y-tablet: 48px;
+  --section-y-phone: 32px;
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-modal: 1200;
+  --z-toast: 1300;
+}
+
+/* ---- 组件级引用（B-slot） ---- */
+:root {
+  --btn-primary-bg: var(--accent);
+  --btn-primary-text: var(--accent-on);
+  --btn-primary-hover: var(--accent-hover);
+  --btn-primary-active: var(--accent-active);
+  --btn-secondary-bg: var(--surface);
+  --btn-secondary-border: var(--border);
+  --btn-secondary-text: var(--fg);
+  --btn-ghost-text: var(--accent);
+  --btn-radius: var(--radius-sm);
+  --btn-height: 40px;
+  --btn-padding-x: 16px;
+
+  --input-bg: var(--surface);
+  --input-border: var(--border);
+  --input-focus-border: var(--accent);
+  --input-error-border: var(--danger);
+  --input-radius: var(--radius-sm);
+  --input-height: 40px;
+  --input-focus-ring: var(--focus-ring);
+
+  --card-bg: var(--surface);
+  --card-border: var(--border);
+  --card-radius: var(--radius-md);
+  --card-padding: var(--space-5);
+
+  --upload-drop-border: var(--border);
+  --upload-drop-border-hover: var(--accent);
+  --upload-drop-bg-hover: var(--accent-soft);
+
+  --gauge-track: var(--surface-warm);
+  --gauge-band: rgba(13, 148, 136, 0.18);
+  --gauge-median: var(--accent);
+  --gauge-threshold: var(--danger);
+
+  --icon-size-inline: 16px;
+  --icon-size-button: 20px;
+  --icon-size-standalone: 24px;
+}
+
+/* ---- 动效尊重 ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

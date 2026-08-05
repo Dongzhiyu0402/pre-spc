@@ -1,0 +1,1000 @@
+openapi: 3.0.3
+info:
+  title: 预查重项目 API
+  version: 1.0.0
+  description: |
+    大学生送检前预查重工具。正式送检知网/维普/万方前，用本工具预估查重率（输出预估区间+置信度），
+    通过用户回传真实查重报告持续校准。
+    依据：Spec-预查重项目-v1.0.md §5（唯一依据）。Spec §5 实际列出 14 个端点，本文件按 14 个实现。
+    P0 规则：本文件不包含任何 emoji；图标系统锁定 Lucide（功能图标），AntD 组件控件图标保留默认。
+  contact:
+    name: 预查重项目团队
+  license:
+    name: 内部项目
+
+servers:
+  - url: http://localhost:8000
+    description: 本地开发
+  - url: https://api.pre-spc.example.com
+    description: 生产环境（占位）
+
+tags:
+  - name: auth
+    description: 认证（注册/登录/刷新/当前用户）
+  - name: plans
+    description: 查重方案
+  - name: checks
+    description: 查重任务
+  - name: calibration
+    description: 校准训练
+  - name: usage
+    description: 用量
+
+paths:
+  /api/v1/auth/register:
+    post:
+      tags: [auth]
+      summary: 注册（送免费次数）
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/auth/login:
+    post:
+      tags: [auth]
+      summary: 登录
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [auth]
+      summary: 刷新 token
+      description: 使用 refresh token 换取新的 access/refresh 对。refresh token 有效期 7 天。
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/auth/me:
+    get:
+      tags: [auth]
+      summary: 当前用户信息
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 当前用户
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/plans:
+    get:
+      tags: [plans]
+      summary: 可用查重方案列表
+      description: 方案在数据库中配置（enabled=true），新增 API 平台无需发版即可见。
+      operationId: listPlans
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 方案列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Plan'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/checks:
+    post:
+      tags: [checks]
+      summary: 创建查重任务（上传文档）
+      description: multipart 上传。异步执行，返回 task_id 与初始状态。文件 ≤50MB / ≤10 万字。
+      operationId: createCheck
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, plan_code]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 支持 docx/txt/md/pdf
+                plan_code:
+                  type: string
+                  description: 方案编码，如 cnki_sim / vip_sim / wanfang_sim / api_placeholder
+      responses:
+        '202':
+          description: 任务已创建（异步执行）
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/CheckTaskSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          description: 免费次数不足，需充值/积分
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+    get:
+      tags: [checks]
+      summary: 历史查重列表
+      operationId: listChecks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: 分页列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    type: object
+                    required: [items, total, page, limit, hasMore]
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CheckTaskSummary'
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      hasMore:
+                        type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/checks/{id}:
+    get:
+      tags: [checks]
+      summary: 任务状态/结果摘要
+      operationId: getCheck
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 任务状态（含结果摘要）
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/CheckTaskDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/checks/{id}/report:
+    get:
+      tags: [checks]
+      summary: 完整报告（预估区间/片段/来源）
+      operationId: getReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 完整报告
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/Report'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: 任务未完成，报告尚不可用
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/checks/{id}/export:
+    get:
+      tags: [checks]
+      summary: 导出报告
+      operationId: exportReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [pdf, html]
+      responses:
+        '200':
+          description: 报告文件流
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: 任务未完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/checks/{id}/recheck:
+    post:
+      tags: [checks]
+      summary: 再次检测（同一文档，换方案）
+      operationId: recheck
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecheckRequest'
+      responses:
+        '202':
+          description: 新任务已创建
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    type: object
+                    required: [task_id, status]
+                    properties:
+                      task_id:
+                        type: integer
+                        format: int64
+                      status:
+                        type: string
+                        example: pending
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/calibration/reports:
+    post:
+      tags: [calibration]
+      summary: 回传真实查重报告
+      description: 用户上传在某平台的真实查重报告，提取真实查重率，与该文档历史预查重结果配对入库。
+      operationId: submitCalibrationReport
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, platform, real_rate, task_id]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 真实查重报告文件（PDF/HTML/Word）
+                platform:
+                  type: string
+                  description: 平台枚举，如 cnki / vip / wanfang
+                real_rate:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 100
+                  description: 真实查重率（0-100）
+                task_id:
+                  type: integer
+                  format: int64
+                  description: 关联的本系统预查重任务
+      responses:
+        '201':
+          description: 样本已入库
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    type: object
+                    required: [sample_id, status]
+                    properties:
+                      sample_id:
+                        type: integer
+                        format: int64
+                      status:
+                        type: string
+                        example: pending_validation
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/v1/calibration/status:
+    get:
+      tags: [calibration]
+      summary: 校准样本数/模型状态
+      operationId: getCalibrationStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 校准状态
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/CalibrationStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/users/me/usage:
+    get:
+      tags: [usage]
+      summary: 免费次数/积分余额
+      operationId: getMyUsage
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 用量信息
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, data, message]
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: ok
+                  data:
+                    $ref: '#/components/schemas/Usage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: access token（有效期 15 分钟）
+
+  responses:
+    BadRequest:
+      description: 请求参数错误（业务校验失败）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: 未认证或 token 无效/过期
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: 资源冲突（如邮箱已存在）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: 资源不存在或无权访问
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: 请求体校验失败（FastAPI 422）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ---------- 统一信封 ----------
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+          description: 非 0 业务错误码
+        message:
+          type: string
+          description: 人类可读错误描述
+        errors:
+          type: array
+          description: 422 校验错误明细（可选）
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string
+
+    # ---------- 认证 ----------
+    User:
+      type: object
+      required: [id, email, nickname, role, free_quota, points]
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        nickname:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        free_quota:
+          type: integer
+          description: 剩余免费次数
+        points:
+          type: integer
+          description: 积分余额
+        created_at:
+          type: string
+          format: date-time
+
+    Tokens:
+      type: object
+      required: [access_token, refresh_token, token_type, expires_in]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+          description: access token 有效期（秒）
+          example: 900
+
+    RegisterRequest:
+      type: object
+      required: [email, password, nickname]
+      properties:
+        email:
+          type: string
+          format: email
+          example: test@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: 至少 8 位，建议含字母+数字
+          example: Test@123
+        nickname:
+          type: string
+          minLength: 1
+          maxLength: 30
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [code, data, message]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ok
+        data:
+          type: object
+          required: [user, tokens]
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            tokens:
+              $ref: '#/components/schemas/Tokens'
+
+    TokenResponse:
+      type: object
+      required: [code, data, message]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ok
+        data:
+          $ref: '#/components/schemas/Tokens'
+
+    UserResponse:
+      type: object
+      required: [code, data, message]
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ok
+        data:
+          $ref: '#/components/schemas/User'
+
+    # ---------- 方案 ----------
+    Plan:
+      type: object
+      required: [code, name, type, price_info]
+      properties:
+        code:
+          type: string
+          description: 方案编码（cnki_sim / vip_sim / wanfang_sim / api_placeholder）
+        name:
+          type: string
+          description: 方案名称（如 知网模拟）
+        type:
+          type: string
+          enum: [engine, api]
+        price_info:
+          type: object
+          description: 计费信息（免费额度/积分单价），结构由后端定义
+          additionalProperties: true
+        enabled:
+          type: boolean
+          description: 是否启用
+
+    # ---------- 查重任务 ----------
+    CheckTaskSummary:
+      type: object
+      required: [task_id, status]
+      properties:
+        task_id:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum: [pending, processing, succeeded, failed]
+        progress:
+          type: integer
+          description: 0-100
+        plan_code:
+          type: string
+        file_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CheckTaskDetail:
+      allOf:
+        - $ref: '#/components/schemas/CheckTaskSummary'
+        - type: object
+          properties:
+            error:
+              type: string
+              description: 失败原因
+            result:
+              type: object
+              description: 结果摘要（成功时）
+              properties:
+                est_median:
+                  type: number
+                  format: float
+                est_low:
+                  type: number
+                  format: float
+                est_high:
+                  type: number
+                  format: float
+                confidence:
+                  type: number
+                  format: float
+
+    # ---------- 报告 ----------
+    Segment:
+      type: object
+      required: [start_offset, end_offset, highlight_type, matched_source, similarity]
+      properties:
+        start_offset:
+          type: integer
+          description: 原文起始偏移（字符）
+        end_offset:
+          type: integer
+          description: 原文结束偏移（字符）
+        highlight_type:
+          type: string
+          enum: [high, mid, cite]
+          description: 高重复红 / 中重复橙 / 引用赭黄（内容标记语义色，独立于 AntD token）
+        matched_source:
+          type: string
+          description: 命中来源提示
+        similarity:
+          type: number
+          format: float
+          description: 片段相似度 0-100
+        source_detail:
+          type: array
+          description: 来源明细（缺字段置 null，可选）
+          items:
+            $ref: '#/components/schemas/SourceDetail'
+
+    SourceDetail:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+          description: 来源篇名
+        author:
+          type: string
+          nullable: true
+          description: 作者
+        source:
+          type: string
+          nullable: true
+          description: 来源标识
+        similarity:
+          type: number
+          format: float
+          nullable: true
+          description: 相似度 0-100
+        is_cited:
+          type: boolean
+          nullable: true
+          description: 是否引用
+        year:
+          type: integer
+          nullable: true
+          description: 发表年份
+
+    Source:
+      type: object
+      required: [source, count]
+      properties:
+        source:
+          type: string
+          description: 来源标识（语料库/用户库/未知）
+        count:
+          type: integer
+          description: 命中片段数
+
+    Report:
+      type: object
+      required: [task_id, plan_code, est_median, est_low, est_high, confidence, segments, sources, disclaimer]
+      properties:
+        task_id:
+          type: integer
+          format: int64
+        plan_code:
+          type: string
+        est_median:
+          type: number
+          format: float
+          description: 预估中值（%）
+        est_low:
+          type: number
+          format: float
+          description: 预估区间下界（%）
+        est_high:
+          type: number
+          format: float
+          description: 预估区间上界（%）
+        confidence:
+          type: number
+          format: float
+          description: 置信度 0-100
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Source'
+        full_text:
+          type: string
+          description: 该任务文档全文（可选）
+        metrics:
+          type: object
+          description: 三指标卡（去除引用率/去除本人率/单篇最大复制比，可选）
+          properties:
+            exclude_cite_rate:
+              type: number
+              format: float
+              nullable: true
+              description: 去除引用率（%）
+            exclude_self_rate:
+              type: number
+              format: float
+              nullable: true
+              description: 去除本人率（%）；无本人标记数据时为 null
+            max_single_source_rate:
+              type: number
+              format: float
+              nullable: true
+              description: 单篇最大复制比（%）
+        chapters:
+          type: array
+          description: 章节重复率（按章节/段落聚合；无章节结构时给单一 "全文" 条目，可选）
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                description: 章节标题
+              rate:
+                type: number
+                format: float
+                description: 章节命中率（%）
+        disclaimer:
+          type: string
+          description: 免责声明（常驻）："预估仅供参考，非官方检测报告"
+        created_at:
+          type: string
+          format: date-time
+
+    # ---------- 再次检测 ----------
+    RecheckRequest:
+      type: object
+      required: [plan_code]
+      properties:
+        plan_code:
+          type: string
+
+    # ---------- 校准 ----------
+    CalibrationStatus:
+      type: object
+      required: [sample_count, model_version, mae]
+      properties:
+        sample_count:
+          type: integer
+          description: 已验证校准样本数
+        model_version:
+          type: string
+          nullable: true
+          description: 当前模型版本（未训练为 null）
+        mae:
+          type: number
+          format: float
+          nullable: true
+          description: 当前模型 MAE（未训练为 null）
+        model_status:
+          type: string
+          enum: [cold_start, linear, gbdt]
+          description: 当前校准阶段
+
+    # ---------- 用量 ----------
+    Usage:
+      type: object
+      required: [free_quota, points]
+      properties:
+        free_quota:
+          type: integer
+          description: 剩余免费次数
+        points:
+          type: integer
+          description: 积分余额

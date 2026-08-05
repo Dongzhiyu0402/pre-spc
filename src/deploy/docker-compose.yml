@@ -1,0 +1,90 @@
+# 预查重项目 部署编排（Spec §4：轻量云 2C4G + Docker Compose）
+# 服务：backend(API) + worker(RQ) + postgres:16 + redis:7
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pre}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pre}
+      POSTGRES_DB: ${POSTGRES_DB:-pre_spc}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # 首次启动执行 schema.sql（幂等，含 CREATE TABLE IF 不存在性由迁移控制）
+      - ../docs/plagiarism-precheck/api/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pre} -d ${POSTGRES_DB:-pre_spc}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [appnet]
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [appnet]
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    environment:
+      PRE_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-pre}:${POSTGRES_PASSWORD:-pre}@postgres:5432/${POSTGRES_DB:-pre_spc}
+      PRE_REDIS_URL: redis://redis:6379/0
+      PRE_JWT_SECRET: ${PRE_JWT_SECRET:?请设置 PRE_JWT_SECRET}
+      PRE_AUTO_CREATE_TABLES: "0"
+      PRE_CORS_ORIGINS: ${PRE_CORS_ORIGINS:-http://localhost:5173}
+      PRE_STORAGE_DIR: /data/storage
+      PRE_REPORT_DIR: /data/reports
+      PRE_ENGINE_INDEX_DIR: /app/engine/models/corpus_index
+      PRE_ENGINE_MODEL_DIR: /app/engine/models/calibration
+    volumes:
+      - appdata:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+    networks: [appnet]
+
+  worker:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    environment:
+      PRE_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-pre}:${POSTGRES_PASSWORD:-pre}@postgres:5432/${POSTGRES_DB:-pre_spc}
+      PRE_REDIS_URL: redis://redis:6379/0
+      PRE_JWT_SECRET: ${PRE_JWT_SECRET:?请设置 PRE_JWT_SECRET}
+      PRE_STORAGE_DIR: /data/storage
+      PRE_REPORT_DIR: /data/reports
+      PRE_ENGINE_INDEX_DIR: /app/engine/models/corpus_index
+      PRE_ENGINE_MODEL_DIR: /app/engine/models/calibration
+    volumes:
+      - appdata:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["python", "-m", "app.worker.worker"]
+    networks: [appnet]
+
+volumes:
+  pgdata:
+  appdata:
+
+networks:
+  appnet:
+    driver: bridge

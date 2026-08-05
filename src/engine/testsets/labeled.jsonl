@@ -1,0 +1,8 @@
+{"sample_id": "A-001", "group": "A", "doc_path": "testsets/docs/a_001.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 95.0, "segments": [{"start_offset": 0, "end_offset": 432, "label": "duplicate", "source": "demo_edu_001"}]}
+{"sample_id": "A-002", "group": "A", "doc_path": "testsets/docs/a_002.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 95.0, "segments": [{"start_offset": 0, "end_offset": 359, "label": "duplicate", "source": "demo_tech_001"}]}
+{"sample_id": "A-003", "group": "A", "doc_path": "testsets/docs/a_003.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 95.0, "segments": [{"start_offset": 0, "end_offset": 376, "label": "duplicate", "source": "demo_urban_001"}]}
+{"sample_id": "B-001", "group": "B", "doc_path": "testsets/docs/b_001.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 60.0, "segments": [{"start_offset": 0, "end_offset": 409, "label": "rewrite", "source": "demo_edu_001"}]}
+{"sample_id": "B-002", "group": "B", "doc_path": "testsets/docs/b_002.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 40.0, "segments": [{"start_offset": 0, "end_offset": 209, "label": "rewrite", "source": "demo_edu_001"}]}
+{"sample_id": "C-001", "group": "C", "doc_path": "testsets/docs/c_001.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 3.0, "segments": []}
+{"sample_id": "C-002", "group": "C", "doc_path": "testsets/docs/c_002.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 3.0, "segments": []}
+{"sample_id": "C-003", "group": "C", "doc_path": "testsets/docs/c_003.txt", "platform": "cnki", "paper_type": "undergrad", "true_rate": 2.0, "segments": []}

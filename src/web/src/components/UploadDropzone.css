@@ -1,0 +1,109 @@
+.dropzone__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 168px;
+  padding: var(--space-6) var(--space-4);
+  background: var(--surface);
+  border: 2px dashed var(--upload-drop-border);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+}
+.dropzone:hover,
+.dropzone--dragging {
+  border-color: var(--upload-drop-border-hover);
+  background: var(--upload-drop-bg-hover);
+}
+.dropzone:hover .dropzone__icon,
+.dropzone--dragging .dropzone__icon {
+  color: var(--accent);
+}
+.dropzone--disabled {
+  cursor: pointer;
+}
+.dropzone--error {
+  border-color: var(--danger);
+}
+
+.dropzone__icon {
+  color: var(--muted);
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+.dropzone__main {
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  color: var(--fg);
+}
+.dropzone__hint {
+  font-size: var(--text-sm);
+  color: var(--meta);
+}
+.dropzone__error {
+  font-size: var(--text-sm);
+  color: var(--danger);
+}
+
+/* 已选文件行 */
+.dropzone--selected {
+  border-style: solid;
+  cursor: default;
+  padding: var(--space-5);
+  align-items: stretch;
+  text-align: left;
+}
+.dropzone__file-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.dropzone__file-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.dropzone__file-meta {
+  flex: 1;
+  min-width: 0;
+}
+.dropzone__file-name {
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  color: var(--fg);
+}
+.dropzone__file-sub {
+  font-size: var(--text-sm);
+  color: var(--meta);
+  margin-top: 2px;
+}
+.dropzone__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dropzone__remove:hover {
+  background: var(--surface-warm);
+  color: var(--fg);
+}

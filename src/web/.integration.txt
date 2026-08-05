@@ -1,0 +1,52 @@
+== 完整报告 JSON（cnki_sim）==
+{
+  "task_id": 5,
+  "plan_code": "cnki_sim",
+  "est_median": 100.0,
+  "est_low": 88.0,
+  "est_high": 100.0,
+  "confidence": 35.0,
+  "segments": [
+    {
+      "start_offset": 0,
+      "end_offset": 740,
+      "highlight_type": "high",
+      "matched_source": "语料库",
+      "similarity": 100.0
+    }
+  ],
+  "sources": [
+    {
+      "source": "语料库",
+      "count": 1
+    }
+  ],
+  "disclaimer": "预估仅供参考，非官方检测报告",
+  "created_at": "2026-08-05T14:36:32"
+}
+[PASS] register 201                 status=201
+[PASS] register free_quota          quota=5
+[PASS] duplicate register 409       status=409 msg=该邮箱已注册
+[PASS] login 200                    status=200
+[PASS] no-auth 401                  status=401
+[PASS] me 200                       
+[PASS] plans 4 codes                codes=['cnki_sim', 'vip_sim', 'wanfang_sim', 'api_placeholder']
+[PASS] check cnki_sim succeeded     task=5
+[PASS] report cnki_sim core fields  missing=[] median=100.0 low=88.0 high=100.0 conf=35.0 segs=1
+[FAIL] report cnki_sim UI-extension present={'full_text': False, 'metrics': False, 'chapters': False, 'source_detail': False}
+[PASS] check vip_sim succeeded      task=6
+[PASS] report vip_sim core fields   missing=[] median=100.0 low=88.0 high=100.0 conf=35.0 segs=1
+[FAIL] report vip_sim UI-extension  present={'full_text': False, 'metrics': False, 'chapters': False, 'source_detail': False}
+[PASS] check wanfang_sim succeeded  task=7
+[PASS] report wanfang_sim core fields missing=[] median=100.0 low=88.0 high=100.0 conf=35.0 segs=1
+[FAIL] report wanfang_sim UI-extension present={'full_text': False, 'metrics': False, 'chapters': False, 'source_detail': False}
+[PASS] export html                  status=200 ct=text/html; charset=utf-8
+[FAIL] export pdf fallback          status=400 len=65 body='{"code":40000,"message":"PDF 导出需要 reportlab，请安装"}'
+[PASS] recheck 202                  status=202 data={'task_id': 8, 'status': 'succeeded'}
+[PASS] calibration 201              status=201 data={'sample_id': 2, 'status': 'pending_validation'}
+[PASS] calibration status           data={'sample_count': 0, 'model_version': None, 'mae': None, 'model_status': 'cold_start'}
+[PASS] usage decremented            quota 5 -> 1 points=2
+[PASS] over-limit 402               6th check after quota 5, status=402 msg=免费次数已用完，请充值积分后再试
+[PASS] history list                 status=200 total=4
+== 结果: 20/24 通过 ==
+TEST_EXIT=1

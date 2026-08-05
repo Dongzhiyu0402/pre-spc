@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# 测试与运行产物
+.pytest_cache/
+.test_db.sqlite
+.test_storage/
+.test_reports/
+.smoke_storage/
+.smoke_reports/
+.dbg*.sqlite
+
+# 运行时数据（原文落盘、报告）
+storage/
+reports/
+
+# 引擎模型产物（运行时生成，不入库）
+engine/models/corpus_index/*.json
+engine/models/calibration/*.json
+
+# 环境
+.env
+
+# 桌面端运行产物
+desktop/.tmp_data/
+desktop/.venv/
+desktop/build/dist/
+desktop/build/build/
+desktop/app/__pycache__/
+desktop/.pytest_cache/

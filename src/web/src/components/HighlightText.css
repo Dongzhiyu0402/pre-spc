@@ -1,0 +1,53 @@
+.hl-text {
+  font-size: var(--text-md);
+  line-height: 1.8;
+  color: var(--fg);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.hl-text__plain {
+  color: var(--fg);
+}
+
+.hl-text__hl {
+  border-radius: 3px;
+  padding: 1px 2px;
+  cursor: pointer;
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+.hl-text__hl:hover {
+  box-shadow: var(--focus-ring);
+}
+.hl-text__hl--active {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* 行业色义：高亮仅作底色，文字恒为深色 */
+.hl-text__hl--high {
+  background: var(--highlight-high);
+}
+.hl-text__hl--mid {
+  background: var(--highlight-mid);
+}
+.hl-text__hl--cite {
+  background: var(--highlight-cite);
+}
+.hl-text__hl--exclude {
+  background: var(--highlight-exclude);
+}
+
+/* 文字标签（WCAG 1.4.1：不只靠颜色传达含义） */
+.hl-text__tag {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 510;
+  vertical-align: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--fg-2);
+}

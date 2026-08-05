@@ -1,0 +1,57 @@
+.auth-form__error {
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.auth-switch {
+  text-align: center;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+
+/* 密码强度 */
+.auth-strength {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: -8px 0 var(--space-3);
+}
+.auth-strength__bars {
+  display: flex;
+  gap: var(--space-1);
+  flex: 1;
+}
+.auth-strength__bar {
+  height: 4px;
+  flex: 1;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+.auth-strength__bar.auth-strength--weak {
+  background: var(--warn);
+}
+.auth-strength__bar.auth-strength--mid {
+  background: var(--accent);
+}
+.auth-strength__bar.auth-strength--strong {
+  background: var(--success);
+}
+.auth-strength__label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.auth-strength__label.auth-strength--weak {
+  color: var(--warn);
+}
+.auth-strength__label.auth-strength--mid {
+  color: var(--accent);
+}
+.auth-strength__label.auth-strength--strong {
+  color: var(--success);
+}

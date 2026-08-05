@@ -1,0 +1,58 @@
+.gauge {
+  display: block;
+  max-width: 680px;
+}
+
+.gauge__track {
+  fill: var(--gauge-track);
+}
+
+.gauge__band {
+  fill: var(--gauge-band);
+}
+
+.gauge__median-dot {
+  fill: var(--gauge-median);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+.gauge__median-halo {
+  fill: none;
+  stroke: rgba(13, 148, 136, 0.25);
+  stroke-width: 1;
+}
+
+.gauge__median-line {
+  stroke: rgba(13, 148, 136, 0.45);
+  stroke-width: 1;
+}
+
+.gauge__threshold-line {
+  stroke: var(--gauge-threshold);
+  stroke-width: 1.5;
+}
+.gauge__threshold-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--gauge-threshold);
+  font-weight: 500;
+}
+
+.gauge__endpoint {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge__scale {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--meta);
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge__tick {
+  stroke: var(--meta);
+  stroke-width: 1;
+}

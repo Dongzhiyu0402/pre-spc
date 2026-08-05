@@ -1,0 +1,81 @@
+.app-nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.app-nav__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: 56px;
+}
+
+.app-nav__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--accent);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-lg);
+}
+.app-nav__logo:hover {
+  color: var(--accent-hover);
+}
+
+.app-nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.app-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--fg-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+.app-nav__link:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.app-nav__auth {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.app-nav__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.app-nav__user-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--fg-2);
+}
+.app-nav__auth-btns {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+@media (max-width: 768px) {
+  .app-nav__link-label {
+    display: none;
+  }
+  .app-nav__link {
+    padding: var(--space-2);
+  }
+  .app-nav__inner {
+    gap: var(--space-3);
+  }
+}

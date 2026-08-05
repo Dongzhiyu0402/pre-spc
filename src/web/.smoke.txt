@@ -1,0 +1,17 @@
+== 预查重项目 全端点冒烟测试 ==
+  [PASS] register               POST /api/v1/auth/register
+  [PASS] login                  POST /api/v1/auth/login
+  [PASS] refresh                POST /api/v1/auth/refresh
+  [PASS] me                     GET /api/v1/auth/me
+  [PASS] plans                  GET /api/v1/plans
+  [PASS] create check           POST /api/v1/checks
+  [PASS] check status           GET /api/v1/checks/{id}
+  [PASS] report                 GET /api/v1/checks/{id}/report
+  [PASS] export html            GET /api/v1/checks/{id}/export?format=html
+  [PASS] history                GET /api/v1/checks
+  [PASS] recheck                POST /api/v1/checks/{id}/recheck
+  [PASS] calibration submit     POST /api/v1/calibration/reports
+  [PASS] calibration status     GET /api/v1/calibration/status
+  [PASS] usage                  GET /api/v1/users/me/usage
+== 结果: 14/14 通过 ==
+EXIT=0

@@ -1,0 +1,4 @@
+# 桌面端依赖（打包用，含 PyInstaller）
+PyQt6>=6.6
+httpx>=0.27
+pyinstaller>=6.6

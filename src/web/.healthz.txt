@@ -1,0 +1,6 @@
+{"code":0,"data":{"status":"ok"},"message":"ok"}curl_done=0
+INFO:     Waiting for application startup.
+2026-08-05 22:33:24,168 INFO [pre-spc] app started: pre-spc-api
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50600 - "GET /healthz HTTP/1.1" 200 OK

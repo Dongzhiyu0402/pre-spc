@@ -1,0 +1,11 @@
+.metric-card {
+  padding: var(--space-4) var(--space-5);
+}
+.metric-card__label {
+  margin-bottom: var(--space-1);
+}
+.metric-card__value {
+  font-size: var(--text-xl);
+  font-weight: 590;
+  color: var(--fg);
+}
