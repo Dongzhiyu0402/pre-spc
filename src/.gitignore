@@ -31,3 +31,10 @@ desktop/build/dist/
 desktop/build/build/
 desktop/app/__pycache__/
 desktop/.pytest_cache/
+
+# PyInstaller 6.x 输出目录（onedir 产物与工作区）
+desktop/dist/
+desktop/build/pre-spc/
+desktop/build/bootloader/
+desktop/build/warn-pre-spc.txt
+src/desktop/_boot_check.py

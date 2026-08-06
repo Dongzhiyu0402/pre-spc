@@ -3,9 +3,14 @@
 # 使用：pyinstaller build/pre-spc.spec
 
 import sys
+import os
 from pathlib import Path
 
-ROOT = Path(SPECPATH).parent.parent
+# SPECPATH 在 PyInstaller 6.x 中可能是相对路径，必须转绝对后再取父目录
+# PyInstaller 的 SPECPATH 是 spec 文件所在目录（如 <root>/desktop/build）
+SPEC_DIR = Path(os.path.abspath(SPECPATH))
+ROOT = SPEC_DIR.parent  # <root>/desktop
+print("DBG ROOT=", ROOT)
 
 a = Analysis(
     [str(ROOT / "main.py")],
